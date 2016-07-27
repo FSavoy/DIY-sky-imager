@@ -1,6 +1,5 @@
-# DIY-sky-imager
-Scripts for building your own sky imager
+# A tutorial to building your own Sky Imager with cloud coverage estimation
 
-This is the repository for the scripts for building a DIY sky imager using a raspberry pi and a digital camera.
+The main file is tutorial.pdf. This repository contains all the scripts required for the project.
 
-See tutorial.pdf for the complete tutorial.
+In this tutorial, you learn how to create your own custom made Sky Imager. You program a Raspberry Pi to instruct a camera to take pictures of the sky at regular intervals. You install a web interface to access the captured images and you apply signal processing techniques to compute the cloud coverage.
