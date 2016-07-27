@@ -5,7 +5,11 @@ In this tutorial, you learn how to create your own custom made Sky Imager. You p
 The main file is tutorial.pdf. This repository contains all the scripts required for the project.
 
 This project is a join work from:
+
 Soumyabrata Dev, Nanyang Technological University, Singapore
+
 Florian M. Savoy, Advanced Digital Sciences Center, University of Illinois at Urbana-Champain, Singapore
+
 Yee Hui Lee, Nanyang Technological University, Singapore
+
 Stefan Winkler, Advanced Digital Sciences Center, University of Illinois at Urbana-Champain, Singapore
