@@ -9,3 +9,10 @@ This project is a join work from:
 - Florian M. Savoy, Advanced Digital Sciences Center, University of Illinois at Urbana-Champain, Singapore
 - Yee Hui Lee, Nanyang Technological University, Singapore
 - Stefan Winkler, Advanced Digital Sciences Center, University of Illinois at Urbana-Champain, Singapore
+
+-----
+Modified to be more efficient, understandable, and pythonic by ES-Alexander.
+
+Can be switched to using the PiCamera library by adding 'picamera' to the end of the `chrontab` modification in the tutorial.  
+`*/2 7-19 * * * python /home/pi/DIY-sky-imager/capture_image.py`  
+-> `*/2 7-19 * * * python /home/pi/DIY-sky-imager/capture_image.py picamera`
