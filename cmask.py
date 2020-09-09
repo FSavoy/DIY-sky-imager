@@ -1,31 +1,21 @@
 # This function generates the circular mask for the input fish-eye image
 
 # Input:
-# index = center co-ordanates of the image
+# center = center co-ordanates of the image (row, col)
 # radius = radius of the circular image
-# array = input image
+# array  = input image
 
 # Output:
 # image_mask = binary output image
 
 import numpy as np
 
-def cmask(index,radius,array):
-  	
-  a,b = index
-  is_rgb = len(array.shape)
+def cmask(center, radius, image):
+  c_y, c_x = center
+  num_y, num_x = image.shape[:2]
 
-  if is_rgb == 3:
-     ash = array.shape
-     nx=ash[0]
-     ny=ash[1]
-
-  else:
-     nx,ny = array.shape
-  
-  s = (nx,ny)
-  image_mask = np.zeros(s)
-  y,x = np.ogrid[-a:nx-a,-b:ny-b]
-  mask = x*x + y*y <= radius*radius
-  image_mask[mask] = 1
+  image_mask = np.ones((num_y, num_x))
+  y, x = np.ogrid[-c_y:num_y-c_y, -c_x:num_x-c_x]
+  # remove components outside the circle
+  image_mask[(x*x + y*y) > radius*radius] = 0
   return(image_mask)
