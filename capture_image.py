@@ -38,7 +38,7 @@ else:
                     .format(capture_method))
 
 # capture the timestamp
-now = datetime.datetime.now()
+now = datetime.now()
 # create the relevant folders if they don't already exist
 os.makedirs(basedir + now.strftime("%Y/%m/%d"), exist_ok=True)
 
