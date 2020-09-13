@@ -35,9 +35,10 @@ def makebinary(imagepath, radiusMask = None):
         # apply a circular mask to get only the pixels of interest
         from cmask import cmask
         mask   = cmask(index, resize_factor * radiusMask, resized).astype(bool)
-        masked = preprocessed[mask]
     else:
-        masked = preprocessed
+        mask   = np.ones(preprocessed.shape).astype(bool)
+    
+    masked = preprocessed[mask]
 
     # use Otsu's method to separate clouds and sky
     threshold, result = cv2.threshold(masked, 0, 255,
@@ -52,8 +53,8 @@ def makebinary(imagepath, radiusMask = None):
     cloud_coverage = cloud_pixels / total_pixels
 
     # create a mask of where the clouds are
-    cloud_image_mask = np.zeros(camera_mask.shape, dtype=np.uint8)
-    cloud_image_mask[camera_mask] = inverted.flatten()
+    cloud_image_mask = np.zeros(mask.shape, dtype=np.uint8)
+    cloud_image_mask[mask] = inverted.flatten()
 
     print('Coverage is {.3f}%'.format(cloud_coverage*100))
     print(datetime.now() - startTime)
