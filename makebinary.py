@@ -1,59 +1,66 @@
 # Cloud coverage computation for on-board computation
+import os
 import cv2
 import numpy as np
-import os
 from datetime import datetime
 
-# User defined functions
-from normalize_array import *
-from cmask import *
-from color16mask import *
-from make_Otsu_mask import *
+def preprocess(image):
+    """ Preprocess 'image' to help separate cloud and sky. """
+    B, G, R = cv2.split(image) # extract the colour channels
 
+    # construct a ratio between the blue and red channel sum and difference
+    BR_sum  = B + R
+    BR_diff = B - R
+    # handle X/0 and 0/0 errors, and remove NaNs (not a number)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        BR_ratio = BR_diff / BR_sum
+        BR_ratio = np.nan_to_num(BR_ratio)
+
+    # normalize to 0-255 range and convert to 8-bit unsigned integers
+    return cv2.normalize(BR_ratio, None, 0, 255, cv2.NORM_MINMAX) \
+              .astype(np.uint8)
 
 def makebinary(imagepath, radiusMask = None):
-	startTime = datetime.now()
+    startTime = datetime.now()
 
-	# Read the input image. Mention the complete path of the image
-	#imagepath = './corrWahrsis3.jpg'
-	im = cv2.imread(imagepath)
+    # read in the image and shrink for faster processing
+    image   = cv2.imread(imagepath)
+    scale   = 0.2
+    smaller = cv2.resize(image, (0,0), fx=scale, fy=scale)
+    center  = [dim / 2 for dim in smaller.shape[:2]]
 
+    preprocessed = preprocess(smaller.astype(float))
 
-	# ---------- Resized -------------
-	# Resize the image for speeding purposes
-	resize_factor = 0.2
-	im_re = cv2.resize(im, (0,0), fx=resize_factor, fy=resize_factor)
-	index = [np.shape(im_re)[0]/2, np.shape(im_re)[1]/2]#[345, 518]  # Center of the image
-	if radiusMask:
-		im_mask = cmask(index,resize_factor*radiusMask,im_re) # Mask with radius 200 pixels
-	else:
-		s = (np.shape(im_re)[0],np.shape(im_re)[1])
-		im_mask = np.ones(s)
-	# Extract the color channels
-	(cc) = color16mask(im_re,im_mask)
+    if radiusMask:
+        # apply a circular mask to get only the pixels of interest
+        from cmask import cmask
+        mask = cmask(index, scale * radiusMask, resized).astype(bool)
+    else:
+        mask = np.ones(preprocessed.shape).astype(bool)
+    
+    masked = preprocessed[mask]
 
+    # use Otsu's method to separate clouds and sky
+    threshold, result = cv2.threshold(masked, 0, 255,
+                                      cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
-	# Performing clustering on the c15 color channel
-	inp_mat = cc.c15
+    # invert the result so clouds are white (255) and sky is black (0)
+    inverted = cv2.bitwise_not(result)
 
+    # determine the cloud coverage
+    cloud_pixels   = np.count_nonzero(inverted == 255)
+    total_pixels   = result.size
+    cloud_coverage = cloud_pixels / total_pixels
 
-	#(th_img,coverage) = make_cluster_mask(inp_mat,im_mask)
-	(th_img,coverage) = make_Otsu_mask(inp_mat,im_mask)
+    # create a mask of where the clouds are
+    cloud_image_mask = np.zeros(mask.shape, dtype=np.uint8)
+    cloud_image_mask[mask] = inverted.flatten()
 
-	print ('Coverage is ',coverage)
+    print('Coverage is {:.3f}%'.format(cloud_coverage*100))
+    print(datetime.now() - startTime)
 
-	print (datetime.now() - startTime)
-	
-	
-	path_components = imagepath.split("/")
-	full_image_name = path_components[-1]
-	imagenameparts = full_image_name.split(".")
-	image_name = imagenameparts[0]
-	ext_name = imagenameparts[1]
+    last_dot  = imagepath.rindex('.')
+    save_path = imagepath[:last_dot] + '-mask' + imagepath[last_dot:]
+    cv2.imwrite(save_path, cloud_image_mask)
 
-	save_path = '/'.join(path_components[:-1]) + '/' + image_name + '-mask.' + ext_name	
-
-	cv2.imwrite(save_path,th_img)
-
-	return(coverage)
-
+    return(cloud_coverage)
