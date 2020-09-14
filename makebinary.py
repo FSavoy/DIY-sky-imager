@@ -56,7 +56,7 @@ def makebinary(imagepath, radiusMask = None):
     cloud_image_mask = np.zeros(mask.shape, dtype=np.uint8)
     cloud_image_mask[mask] = inverted.flatten()
 
-    print('Coverage is {.3f}%'.format(cloud_coverage*100))
+    print('Coverage is {:.3f}%'.format(cloud_coverage*100))
     print(datetime.now() - startTime)
 
     last_dot  = imagepath.rindex('.')
