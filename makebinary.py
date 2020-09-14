@@ -34,9 +34,9 @@ def makebinary(imagepath, radiusMask = None):
     if radiusMask:
         # apply a circular mask to get only the pixels of interest
         from cmask import cmask
-        mask   = cmask(index, resize_factor * radiusMask, resized).astype(bool)
+        mask = cmask(index, scale * radiusMask, resized).astype(bool)
     else:
-        mask   = np.ones(preprocessed.shape).astype(bool)
+        mask = np.ones(preprocessed.shape).astype(bool)
     
     masked = preprocessed[mask]
 
