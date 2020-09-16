@@ -29,10 +29,10 @@ elif capture_method.lower() == 'picamera':
 
     # open the camera and take the latest image
     file = 'latest.jpg'
-    camera = PiCamera()
-    camera.start_preview()
-    sleep(2)             # wait for the camera to initialise
-    camera.capture(file) # capture and save an image to 'file'
+    with PiCamera() as camera:
+        camera.start_preview()
+        sleep(2)             # wait for the camera to initialise
+        camera.capture(file) # capture and save an image to 'file'
 else:
     raise Exception("Invalid capture method {}. Use 'gphoto' or 'picamera'."
                     .format(capture_method))
